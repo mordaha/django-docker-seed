@@ -1,0 +1,5 @@
+coverage
+factory-boy
+mock
+watchdog
+tox

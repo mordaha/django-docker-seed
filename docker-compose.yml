@@ -1,0 +1,19 @@
+service-zzzzz-app:
+  container_name: zzzzz-app
+  build: .
+  ports:
+   - "8000:80"
+  environment:
+   - DEBUG=1
+   - AUTH_PORT_80_TCP_ADDR=auth.emias.info
+  volumes:
+   - .:/opt/zzzzz/repository
+  links:
+   - service-zzzzz-pgsql:pgsql
+service-zzzzz-pgsql:
+  container_name: zzzzz-pgsql
+  image: postgres
+  environment:
+   - POSTGRES_DB=zzzzz
+   - POSTGRES_USER=zzzzz
+   - POSTGRES_PASSWORD=password

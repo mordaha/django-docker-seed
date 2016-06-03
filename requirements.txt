@@ -1,0 +1,7 @@
+django
+django-extensions
+psycopg2
+gunicorn
+hiredis
+django-redis-cache
+django-redis-sessions

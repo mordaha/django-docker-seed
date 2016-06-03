@@ -1,0 +1,76 @@
+FROM python:3
+
+# Prepare os libs
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
+    python-dev python-setuptools python-pip \
+    git-core \
+    openssh-server
+
+# upgrade pip
+RUN pip install --upgrade pip
+
+
+# Prepare app specific modules
+COPY ./requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+RUN rm /tmp/requirements.txt
+
+# Prepare app-dev specific modules
+COPY ./requirements-dev.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+RUN rm /tmp/requirements.txt
+
+# Prepare environment
+ENV APP_NAME="zzzzz"
+ENV APP_ROOT="/opt/${APP_NAME}"
+ENV APP_REPOSITORY="${APP_ROOT}/repository"
+ENV PYTHONPATH="${PYTHONPATH}:${APP_REPOSITORY}/src"
+
+
+# Static and media dir to expose out container onto nginx-service
+RUN mkdir -p /static /media
+ENV DJANGO_STATIC_ROOT="/static"
+ENV DJANGO_MEDIA_ROOT="/media"
+
+
+# Prepare app
+ENV DJANGO_SETTINGS_MODULE=project.settings
+WORKDIR ${APP_REPOSITORY}/src/
+
+
+# Prepare initial
+COPY ./deploy/entrypoint.sh /bin/entrypoint.sh
+RUN chmod 700 /bin/entrypoint.sh
+
+
+# Prepare project
+COPY . ${APP_REPOSITORY}/
+WORKDIR ${APP_REPOSITORY}
+
+
+# Prepare dir for sshd
+RUN mkdir -p /var/run/sshd
+
+
+# Prepare key-based login to ssd (by copying local ~/.ssh/id_rsa.pub in ./dc.sh script)
+RUN mkdir -p /root/.ssh
+RUN chmod 700 /root/.ssh
+COPY ./deploy/id_rsa.pub /root/.ssh/authorized_keys
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
+
+# Prepare ports
+# www
+EXPOSE 8000
+# api
+EXPOSE 8001
+# ssh
+EXPOSE 22
+
+
+# Prepare volumes
+VOLUME ["/media"]
+VOLUME ["/static"]
+
+
+ENTRYPOINT ["/bin/entrypoint.sh"]

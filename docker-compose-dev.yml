@@ -1,0 +1,87 @@
+---
+version: "2"
+
+
+services:
+
+
+  # service-zzzzz-data:
+  #   container_name: zzzzz-data
+  #   image: cogniteev/echo
+  #   volumes:
+  #     - /var/lib/postgresql
+  #     - ./data/static:/static/
+  #     - ./data/media:/media/
+
+
+  service-zzzzz-pgsql:
+    container_name: zzzzz-pgsql
+    image: postgres
+    # depends_on:
+    #   - service-zzzzz-data
+    environment:
+     - POSTGRES_DB=zzzzz
+     - POSTGRES_USER=zzzzz
+     - POSTGRES_PASSWORD=password
+    ports:
+      - "8042:5432"
+    volumes:
+      - zzzzz_pgsql_data:/var/lib/postgresql/data
+
+
+  service-zzzzz-redis:
+    container_name: zzzzz-redis
+    image: redis
+
+
+  service-zzzzz-app:
+    container_name: zzzzz-app
+    build:
+      context: .
+      dockerfile: "Dockerfile-dev"
+    depends_on:
+#      - service-zzzzz-data
+      - service-zzzzz-pgsql
+      - service-zzzzz-redis
+    ports:
+     - "8000:8000"
+     - "8001:8001"
+     - "8022:22"
+    environment:
+     - DEV=1
+     - DEBUG=1
+     - DJANGO_DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
+     - DJANGO_DATABASE_HOST=pgsql
+     - DJANGO_DATABASE_NAME=zzzzz
+     - DJANGO_DATABASE_USER=zzzzz
+     - DJANGO_DATABASE_PASSWORD=password
+    volumes:
+     - .:/opt/zzzzz/repository
+     - zzzzz_static_files:/static
+     - zzzzz_media_files:/media
+    links:
+     - service-zzzzz-pgsql:pgsql
+     - service-zzzzz-redis:redis
+
+
+  service-zzzzz-nginx:
+    container_name: zzzzz-nginx
+    depends_on:
+      - service-zzzzz-app
+
+    image: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - zzzzz_static_files:/static:ro
+      - zzzzz_media_files:/media:ro
+    links:
+     - service-zzzzz-app:app
+
+
+volumes:
+  zzzzz_pgsql_data:
+  zzzzz_static_files:
+  zzzzz_media_files:
+
