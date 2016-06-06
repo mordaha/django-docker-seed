@@ -21,7 +21,7 @@ services:
      - POSTGRES_USER=zzzzz
      - POSTGRES_PASSWORD=password
     ports:
-      - "8042:5432"
+      - "127.0.0.1:8032:5432"
     volumes_from:
       - service-zzzzz-data
 
@@ -39,9 +39,9 @@ services:
       - service-zzzzz-pgsql
       - service-zzzzz-redis
     ports:
-     - "8000:8000"
-     - "8001:8001"
-     - "8022:22"
+     - "127.0.0.1:8000:8000"
+     - "127.0.0.1:8001:8001"
+     - "127.0.0.1:8022:22"
     environment:
      - DEV=1
      - DEBUG=1
@@ -65,7 +65,7 @@ services:
       - service-zzzzz-app
     image: nginx
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     volumes_from:
       - service-zzzzz-data
     volumes:
