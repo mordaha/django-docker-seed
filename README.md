@@ -26,7 +26,7 @@ Development
 2. point your browser to http://127.0.0.1:8000/ => ./manage.py runserver 8000
 3. point your browser to http://127.0.0.1:8080/ => nginx with static files
 4. In another terminal do ./dc.sh test or ./dc.sh shell -> cd src -> ./runtests.sh
-5. If you whant - point your postgresql app to 127.0.0.1:8032
+5. If you want - point your postgresql app to 127.0.0.1:8032
 
 Production
 ------------
