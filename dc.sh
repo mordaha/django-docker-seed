@@ -24,6 +24,10 @@ else
         log)
             ${DC} exec service-zzzzz-app /bin/bash -c "tail -n 100 -f /var/log/app.error.log"
             ;;
+        clean_all)
+            docker stop $(docker ps -a -q)
+            docker rm $(docker ps -a -q)
+            ;;
         *)
             ${DC} $@
             ;;

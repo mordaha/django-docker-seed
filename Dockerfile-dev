@@ -5,7 +5,7 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
     python-dev python-setuptools python-pip \
     git-core \
     openssh-server
-
+RUN apt-get autoremove -y
 # upgrade pip
 RUN pip install --upgrade pip
 
@@ -66,11 +66,6 @@ EXPOSE 8000
 EXPOSE 8001
 # ssh
 EXPOSE 22
-
-
-# Prepare volumes
-VOLUME ["/media"]
-VOLUME ["/static"]
 
 
 ENTRYPOINT ["/bin/entrypoint.sh"]
