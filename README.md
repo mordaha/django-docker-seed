@@ -1,4 +1,7 @@
-This is experemental template sceleton for future django-docker-seed project
+This is experemental template skeleton for future django-docker-seed project
+
+&#x1F534; FOR MAC USERS: THIS SETUP WORKS ON DOCKER-BETA ONLY! (Docker version >1.11.1)
+
 
 It uses:
 ---------
@@ -13,18 +16,17 @@ It uses:
 
 Todo
 ------------
-- make nginx logs mapped on host or something
-- working with volumes - reconsider
-
+- make nginx logs mapped on host or something?
+- make production configs
 
 
 Development
 ------------
 1. ./dc.sh up
-2. point your browser to http://192.168.99.100:8000/ => ./manage.py runserver 8000
-3. point your browser to http://192.168.99.100:8080/ => nginx with static files
+2. point your browser to http://127.0.0.1:8000/ => ./manage.py runserver 8000
+3. point your browser to http://127.0.0.1:8080/ => nginx with static files
 4. In another terminal do ./dc.sh test or ./dc.sh shell -> cd src -> ./runtests.sh
-
+5. If you whant - point your postgresql app to 127.0.0.1:8032
 
 Production
 ------------
@@ -32,7 +34,7 @@ Production
 *Not ready yet!*
 
 1. Use docker-compose instead of dc.sh, Luke! :)
-2. Point your main balancer to 8080 port of container
+2. Point your main balancer to 8080 port
 
 License
 -----------
