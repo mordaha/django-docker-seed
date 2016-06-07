@@ -1,3 +1,5 @@
+&#x1F534; UNDER CONSTRUCTION! :)
+
 This is experemental template skeleton for future django-docker-seed
 
 &#x1F534; FOR MAC USERS: THIS SETUP WORKS ON DOCKER-BETA ONLY! (Docker version >1.11.1)
