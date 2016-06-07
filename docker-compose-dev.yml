@@ -11,6 +11,7 @@ services:
       - ./data/media:/media
       - ./data/fluentd/log:/fluentd/log
       - ./data/elasticsearch:/usr/share/elasticsearch/data
+      - ./data/nginx/log:/var/log/nginx
 
   db:
     image: postgres
@@ -44,19 +45,19 @@ services:
     links:
       - elasticsearch
 
-  fluentd:  
+  fluentd:
     image: fluent/fluentd:latest
     depends_on:
       - data
       - elasticsearch
     ports:
       - "24224:24224"
-    environment: 
-      - FLUENTD_CONF=fluent.conf  
-      - FLUENTD_OPT=-v  
+    environment:
+      - FLUENTD_CONF=fluent.conf
+      - FLUENTD_OPT=-v
       - ES_HOST=elasticsearch
       - ES_PORT=9200
-    volumes_from: 
+    volumes_from:
       - data
     volumes:
       - ./deploy/fluentd:/fluentd/etc:ro

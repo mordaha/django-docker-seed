@@ -112,48 +112,53 @@ STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', '/static')
 MEDIA_ROOT = os.environ.get('DJANGO_MEDIA_ROOT', '/media')
 
 LOGGING = {
+
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
-        },
-        'simple': {
-            'format': '%(levelname)s: %(message)s'
-        },
 
+    'formatters': {
+        'fluentd': {
+            '()': 'fluent.handler.FluentRecordFormatter',
+            'format': {
+                'sys_name': '%(name)s',
+                'level': '%(levelname)s',
+                'source_host': '%(hostname)s',
+                'source': '%(module)s',
+            }
+        },
+        'console': {
+            'format': '[%(module)s].%(levelname)s %(message)s'
+        }
     },
+
     'handlers': {
        'fluentd':{
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'fluent.handler.FluentHandler',
-            'formatter': 'simple',
-            'tag': 'django.debug',
-            'host': os.environ.get('DJANGO_FLUENTD_HOST'),
-            'port': 24224,
-        },
-       'app_fluentd':{
-            'level': 'DEBUG',
-            'class': 'fluent.handler.FluentHandler',
-            'formatter': 'simple',
-            'tag': 'app.debug',
+            'formatter': 'fluentd',
+            'tag': 'django.log',
             'host': os.environ.get('DJANGO_FLUENTD_HOST'),
             'port': 24224,
         },
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'console'
         },
     },
+
     'loggers': {
+        'app.logger': {
+            'handlers': ['fluentd', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'django': {
             'handlers': ['fluentd', 'console'],
             'level': 'INFO',
         },
-        'app.debug': {
-            'handlers': ['app_fluentd', 'console'],
-            'level': 'DEBUG',
-        },
-
-    }
+        'django.request': {
+            'handlers': ['fluentd', 'console'],
+            'level': 'INFO',
+        }
+    },
 }
