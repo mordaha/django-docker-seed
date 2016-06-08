@@ -166,3 +166,7 @@ LOGGING = {
         }
     },
 }
+
+
+if os.environ.get('APP_ENV') == 'test':
+    from .test_settings import *  # NOQA

@@ -30,7 +30,7 @@ ENV DJANGO_MEDIA_ROOT="/media"
 ENV DJANGO_SETTINGS_MODULE=project.settings
 ENV PYTHONPATH="${PYTHONPATH}:/app"
 RUN mkdir -p /app
-WORKDIR /app
+WORKDIR /app/src
 
 
 # Prepare initial
@@ -39,8 +39,8 @@ RUN chmod 700 /bin/entrypoint.sh
 
 
 # Prepare project
-COPY ./src/* /app/
-WORKDIR /app
+# COPY ./src/* /app/
+# WORKDIR /app/src
 
 
 # Prepare dir for sshd

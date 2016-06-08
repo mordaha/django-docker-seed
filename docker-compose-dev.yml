@@ -89,7 +89,7 @@ services:
     volumes_from:
       - data
     volumes:
-     - ./src:/app
+     - .:/app
     links:
      - db
      - redis
