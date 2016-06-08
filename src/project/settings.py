@@ -63,10 +63,10 @@ DATABASES = {
 }
 
 
-CACHES={
+CACHES = {
     'default': {
-        'BACKEND':'redis_cache.RedisCache',
-        'LOCATION':'redis:6379',
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis:6379',
         'OPTIONS': {
             'DB': 1,
             'PARSER_CLASS': 'redis.connection.HiredisParser'
@@ -75,25 +75,29 @@ CACHES={
 }
 
 
-SESSION_ENGINE='redis_sessions.session'
-SESSION_REDIS_HOST='redis'
-SESSION_REDIS_PORT=6379
-SESSION_REDIS_DB=1
-SESSION_REDIS_PREFIX='zzzzz'
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_HOST = 'redis'
+SESSION_REDIS_PORT = 6379
+SESSION_REDIS_DB = 1
+SESSION_REDIS_PREFIX = 'zzzzz'
 
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+        'UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+        'MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+        'CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+        'NumericPasswordValidator',
     },
 ]
 
@@ -132,7 +136,7 @@ LOGGING = {
     },
 
     'handlers': {
-       'fluentd':{
+        'fluentd': {
             'level': 'INFO',
             'class': 'fluent.handler.FluentHandler',
             'formatter': 'fluentd',
