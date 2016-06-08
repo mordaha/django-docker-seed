@@ -19,7 +19,10 @@ else
             ${DC_EXEC} /bin/bash -c "${@:2}"
             ;;
         test)
-            ${DC_EXEC} /bin/bash -c "cd /opt/zzzzz/repository/src && ./runtests.sh ${@:2}"
+            ${DC_EXEC} /bin/bash -c "cd /app && ./runtests.sh ${@:2}"
+            ;;
+        flake)
+            ${DC_EXEC} /bin/bash -c "cd /app && flake8 . ${@:2}"
             ;;
         log)
             ${DC_EXEC} /bin/bash -c "tail -n 100 -f /var/log/app.error.log"

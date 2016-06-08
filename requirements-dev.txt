@@ -3,3 +3,5 @@ factory-boy
 mock
 watchdog
 tox
+flake8
+pep8
