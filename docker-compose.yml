@@ -1,19 +1,100 @@
-service-zzzzz-app:
-  container_name: zzzzz-app
-  build: .
-  ports:
-   - "8000:80"
-  environment:
-   - DEBUG=1
-   - AUTH_PORT_80_TCP_ADDR=auth.emias.info
-  volumes:
-   - .:/opt/zzzzz/repository
-  links:
-   - service-zzzzz-pgsql:pgsql
-service-zzzzz-pgsql:
-  container_name: zzzzz-pgsql
-  image: postgres
-  environment:
-   - POSTGRES_DB=zzzzz
-   - POSTGRES_USER=zzzzz
-   - POSTGRES_PASSWORD=password
+---
+version: "2"
+services:
+  code:
+    build:
+      context: .
+      dockerfile: "Dockerfile-code"
+  data:
+    image: cogniteev/echo
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+      - ./data/static:/static
+      - ./data/media:/media
+      - ./data/fluentd/log:/fluentd/log
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+      - ./data/nginx/log:/var/log/nginx
+  db:
+    image: postgres
+    depends_on:
+      - data
+    environment:
+      - POSTGRES_DB=app_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "127.0.0.1:8032:5432"
+    volumes_from:
+      - data
+  redis:
+    image: redis
+  elasticsearch:
+    image: elasticsearch
+    ports:
+      - 8020:9200
+    volumes_from:
+      - data
+  kibana:
+    image: kibana
+    depends_on:
+      - elasticsearch
+    ports:
+      - 8010:5601
+    links:
+      - elasticsearch
+  fluentd:
+    image: fluent/fluentd:latest
+    depends_on:
+      - data
+      - elasticsearch
+    ports:
+      - "24224:24224"
+    environment:
+      - FLUENTD_CONF=fluent.conf
+      - FLUENTD_OPT=-v
+      - ES_HOST=elasticsearch
+      - ES_PORT=9200
+    volumes_from:
+      - data
+    volumes:
+      - ./deploy/fluentd:/fluentd/etc:ro
+    links:
+      - elasticsearch
+    command: [ /fluentd/etc/start.sh ]
+  django:
+    build:
+      context: .
+      dockerfile: "Dockerfile-dev"
+    depends_on:
+      - data
+      - db
+      - redis
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - DJANGO_DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
+      - DJANGO_DATABASE_HOST=db
+      - DJANGO_DATABASE_NAME=app_db
+      - DJANGO_DATABASE_USER=user
+      - DJANGO_DATABASE_PASSWORD=password
+      - DJANGO_FLUENTD_HOST=fluentd
+    volumes_from:
+      - code
+      - data
+    links:
+      - db
+      - redis
+      - fluentd
+  nginx:
+    depends_on:
+      - data
+      - django
+    image: nginx
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes_from:
+      - data
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    links:
+      - django

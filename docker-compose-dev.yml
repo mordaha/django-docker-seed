@@ -1,8 +1,12 @@
 ---
 version: "2"
-
 services:
-
+  code:
+    build:
+      context: .
+      dockerfile: "Dockerfile-code"
+    volumes:
+      - ./src:/code
   data:
     image: cogniteev/echo
     volumes:
@@ -12,30 +16,26 @@ services:
       - ./data/fluentd/log:/fluentd/log
       - ./data/elasticsearch:/usr/share/elasticsearch/data
       - ./data/nginx/log:/var/log/nginx
-
   db:
     image: postgres
     depends_on:
       - data
     environment:
-     - POSTGRES_DB=app_db
-     - POSTGRES_USER=user
-     - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=app_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
     ports:
       - "127.0.0.1:8032:5432"
     volumes_from:
       - data
-
   redis:
     image: redis
-
   elasticsearch:
     image: elasticsearch
     ports:
       - 8020:9200
     volumes_from:
       - data
-
   kibana:
     image: kibana
     depends_on:
@@ -44,7 +44,6 @@ services:
       - 8010:5601
     links:
       - elasticsearch
-
   fluentd:
     image: fluent/fluentd:latest
     depends_on:
@@ -64,8 +63,7 @@ services:
     links:
       - elasticsearch
     command: [ /fluentd/etc/start.sh ]
-
-  app:
+  django:
     build:
       context: .
       dockerfile: "Dockerfile-dev"
@@ -74,31 +72,29 @@ services:
       - db
       - redis
     ports:
-     - "127.0.0.1:8000:8000"
-     - "127.0.0.1:8001:8001"
-     - "127.0.0.1:8022:22"
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8022:22"
     environment:
-     - DEV=1
-     - DEBUG=1
-     - DJANGO_DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
-     - DJANGO_DATABASE_HOST=db
-     - DJANGO_DATABASE_NAME=app_db
-     - DJANGO_DATABASE_USER=user
-     - DJANGO_DATABASE_PASSWORD=password
-     - DJANGO_FLUENTD_HOST=fluentd
+      - DEV=1
+      - DEBUG=1
+      - DJANGO_DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
+      - DJANGO_DATABASE_HOST=db
+      - DJANGO_DATABASE_NAME=app_db
+      - DJANGO_DATABASE_USER=user
+      - DJANGO_DATABASE_PASSWORD=password
+      - DJANGO_FLUENTD_HOST=fluentd
     volumes_from:
+      - code
       - data
-    volumes:
-     - .:/app
     links:
-     - db
-     - redis
-     - fluentd
-
+      - db
+      - redis
+      - fluentd
   nginx:
     depends_on:
       - data
-      - app
+      - django
     image: nginx
     ports:
       - "127.0.0.1:8080:80"
@@ -107,4 +103,4 @@ services:
     volumes:
       - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     links:
-     - app:app
+      - django

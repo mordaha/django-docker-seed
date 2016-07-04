@@ -26,8 +26,8 @@ else
           --bind 0.0.0.0:8000 \
           --workers 3 \
           --log-level=info \
-          --log-file=/var/logs/gunicorn.log \
-          --access-logfile=/var/logs/gunicorn-access.log \
+          --log-file=/var/log/gunicorn.log \
+          --access-logfile=/var/log/gunicorn-access.log \
           "$@"
     fi
 fi

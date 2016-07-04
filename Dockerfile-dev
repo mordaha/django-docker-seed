@@ -6,9 +6,9 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
     git-core \
     openssh-server
 RUN apt-get autoremove -y
+
 # upgrade pip
 RUN pip install --upgrade pip
-
 
 # Prepare app specific modules
 COPY ./requirements.txt /tmp/requirements.txt
@@ -25,27 +25,18 @@ RUN mkdir -p /static /media
 ENV DJANGO_STATIC_ROOT="/static"
 ENV DJANGO_MEDIA_ROOT="/media"
 
-
 # Prepare app
 ENV DJANGO_SETTINGS_MODULE=project.settings
-ENV PYTHONPATH="${PYTHONPATH}:/app"
-RUN mkdir -p /app
-WORKDIR /app/src
-
+ENV PYTHONPATH="${PYTHONPATH}:/code"
+RUN mkdir -p /code
+WORKDIR /code
 
 # Prepare initial
 COPY ./deploy/entrypoint.sh /bin/entrypoint.sh
 RUN chmod 700 /bin/entrypoint.sh
 
-
-# Prepare project
-# COPY ./src/* /app/
-# WORKDIR /app/src
-
-
 # Prepare dir for sshd
 RUN mkdir -p /var/run/sshd
-
 
 # Prepare key-based login to ssd (by copying local ~/.ssh/id_rsa.pub in ./dc.sh script)
 RUN mkdir -p /root/.ssh
@@ -53,14 +44,12 @@ RUN chmod 700 /root/.ssh
 COPY ./deploy/id_rsa.pub /root/.ssh/authorized_keys
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-
 # Prepare ports
-# www
+# django
 EXPOSE 8000
 # api
 EXPOSE 8001
 # ssh
 EXPOSE 22
-
 
 ENTRYPOINT ["/bin/entrypoint.sh"]

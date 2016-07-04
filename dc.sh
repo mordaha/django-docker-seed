@@ -2,7 +2,7 @@
 
 BASEDIR=$(dirname "${0}")
 DC="docker-compose -f ${BASEDIR}/docker-compose-dev.yml"
-DC_EXEC="${DC} exec app"
+DC_EXEC="${DC} exec django"
 
 if ! test -f "${BASEDIR}/deploy/id_rsa.pub"; then
     cp ~/.ssh/id_rsa.pub ${BASEDIR}/deploy/
@@ -19,20 +19,20 @@ else
             ${DC_EXEC} /bin/bash -c "${@:2}"
             ;;
         test)
-            ${DC_EXEC} /bin/bash -c "cd /app && ./runtests.sh ${@:2}"
+            ${DC_EXEC} /bin/bash -c "cd /code && ./runtests.sh ${@:2}"
             ;;
         flake)
-            ${DC_EXEC} /bin/bash -c "cd /app && flake8 . ${@:2}"
+            ${DC_EXEC} /bin/bash -c "cd /code && flake8 . ${@:2}"
             ;;
         log)
-            ${DC_EXEC} /bin/bash -c "tail -n 100 -f /var/log/app.error.log"
+            ${DC_EXEC} /bin/bash -c "tail -n 100 -f /var/log/django.error.log"
             ;;
         clean_all)
             docker stop $(docker ps -a -q)
             docker rm $(docker ps -a -q)
             docker volume rm $(docker volume ls -q)
             ;;
-        es_low_disk_warnings)
+        es_low)
             curl -XPUT localhost:8020/_cluster/settings -d '{ 
                                "transient" : { 
                                    "cluster.routing.allocation.disk.threshold_enabled" : false 
