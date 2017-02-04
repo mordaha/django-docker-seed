@@ -53,6 +53,7 @@ services:
       - ./deploy/logstash/config:/etc/logstash/conf.d
     ports:
       - "127.0.0.1:8050:5000"
+      - "127.0.0.1:8012:12201/udp"
     depends_on:
       - elasticsearch
     links:
@@ -109,6 +110,11 @@ services:
     image: nginx
     ports:
       - "127.0.0.1:8080:80"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:8012
+        tag: nginx
     volumes_from:
       - data
     volumes:
