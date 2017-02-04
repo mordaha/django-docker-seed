@@ -62,7 +62,6 @@ DATABASES = {
     }
 }
 
-
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
@@ -74,30 +73,28 @@ CACHES = {
     }
 }
 
-
 SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_HOST = 'redis'
 SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 1
 SESSION_REDIS_PREFIX = 'zzzzz'
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.'
-        'UserAttributeSimilarityValidator',
+                'UserAttributeSimilarityValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.'
-        'MinimumLengthValidator',
+                'MinimumLengthValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.'
-        'CommonPasswordValidator',
+                'CommonPasswordValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.'
-        'NumericPasswordValidator',
+                'NumericPasswordValidator',
     },
 ]
 
@@ -121,28 +118,38 @@ LOGGING = {
     'disable_existing_loggers': False,
 
     'formatters': {
-        'fluentd': {
-            '()': 'fluent.handler.FluentRecordFormatter',
-            'format': {
-                'sys_name': '%(name)s',
-                'level': '%(levelname)s',
-                'source_host': '%(hostname)s',
-                'source': '%(module)s',
-            }
-        },
+        # 'fluentd': {
+        #     '()': 'fluent.handler.FluentRecordFormatter',
+        #     'format': {
+        #         'sys_name': '%(name)s',
+        #         'level': '%(levelname)s',
+        #         'source_host': '%(hostname)s',
+        #         'source': '%(module)s',
+        #     }
+        # },
         'console': {
             'format': '[%(module)s].%(levelname)s %(message)s'
         }
     },
 
     'handlers': {
-        'fluentd': {
+        # 'fluentd': {
+        #     'level': 'INFO',
+        #     'class': 'fluent.handler.FluentHandler',
+        #     'formatter': 'fluentd',
+        #     'tag': 'django.log',
+        #     'host': os.environ.get('DJANGO_FLUENTD_HOST'),
+        #     'port': 24224,
+        # },
+        'logstash': {
             'level': 'INFO',
-            'class': 'fluent.handler.FluentHandler',
-            'formatter': 'fluentd',
-            'tag': 'django.log',
-            'host': os.environ.get('DJANGO_FLUENTD_HOST'),
-            'port': 24224,
+            'class': 'logstash.TCPLogstashHandler',
+            'host': os.environ.get('DJANGO_LOGSTASH_HOST'),
+            'port': os.environ.get('DJANGO_LOGSTASH_PORT'),
+            'version': 1,
+            'message_type': 'logstash',
+            'fqdn': True,
+            'tags': ['django'],
         },
         'console': {
             'class': 'logging.StreamHandler',
@@ -152,21 +159,20 @@ LOGGING = {
 
     'loggers': {
         'app.logger': {
-            'handlers': ['fluentd', 'console'],
+            'handlers': ['logstash', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'django': {
-            'handlers': ['fluentd', 'console'],
+            'handlers': ['logstash', 'console'],
             'level': 'INFO',
         },
         'django.request': {
-            'handlers': ['fluentd', 'console'],
+            'handlers': ['logstash', 'console'],
             'level': 'INFO',
         }
     },
 }
-
 
 if os.environ.get('APP_ENV') == 'test':
     from .test_settings import *  # NOQA

@@ -1,7 +1,22 @@
 #!/bin/bash
 
+
+export PYTHONUNBUFFERED=1
+
+
 # wait for postges
-sleep 4
+echo "Waiting for postgresql database"
+while true
+do
+  curl -s http://pgsql:5432
+  if [ "$?" = "0" -o  "$?" = "52" ]; then
+    break
+  fi
+  echo "$(date) - still trying"
+  sleep 2
+done
+echo "$(date) - connected successfully"
+
 
 if ! [ -z "$DJANGO_RESET_DB" ]; then
     django-admin reset_db --noinput

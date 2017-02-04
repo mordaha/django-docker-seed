@@ -7,6 +7,7 @@ services:
       dockerfile: "Dockerfile-code"
     volumes:
       - ./src:/code
+
   data:
     image: cogniteev/echo
     volumes:
@@ -16,7 +17,8 @@ services:
       - ./data/fluentd/log:/fluentd/log
       - ./data/elasticsearch:/usr/share/elasticsearch/data
       - ./data/nginx/log:/var/log/nginx
-  db:
+
+  pgsql:
     image: postgres
     depends_on:
       - data
@@ -28,49 +30,55 @@ services:
       - "127.0.0.1:8032:5432"
     volumes_from:
       - data
+
   redis:
     image: redis
+
   elasticsearch:
-    image: elasticsearch
+    build: ./deploy/elasticsearch/
     ports:
-      - 8020:9200
-    volumes_from:
-      - data
-  kibana:
-    image: kibana
-    depends_on:
-      - elasticsearch
-    ports:
-      - 8010:5601
-    links:
-      - elasticsearch
-  fluentd:
-    image: fluent/fluentd:latest
-    depends_on:
-      - data
-      - elasticsearch
-    ports:
-      - "24224:24224"
+      - "127.0.0.1:8020:9200"
+      - "127.0.0.1:8030:9300"
     environment:
-      - FLUENTD_CONF=fluent.conf
-      - FLUENTD_OPT=-v
-      - ES_HOST=elasticsearch
-      - ES_PORT=9200
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    depends_on:
+      - data
     volumes_from:
       - data
+
+  logstash:
+    build: ./deploy/logstash/
+    command: -f /etc/logstash/conf.d/
     volumes:
-      - ./deploy/fluentd:/fluentd/etc:ro
+      - ./deploy/logstash/config:/etc/logstash/conf.d
+    ports:
+      - "127.0.0.1:8050:5000"
+    depends_on:
+      - elasticsearch
     links:
       - elasticsearch
-    command: [ /fluentd/etc/start.sh ]
+
+  kibana:
+    build: ./deploy/kibana/
+    volumes:
+      - ./deploy/kibana/config/:/etc/kibana/
+    ports:
+      - "127.0.0.1:8056:5601"
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+
   django:
     build:
       context: .
       dockerfile: "Dockerfile-dev"
     depends_on:
       - data
-      - db
+      - pgsql
       - redis
+      - elasticsearch
+      - logstash
     ports:
       - "127.0.0.1:8000:8000"
       - "127.0.0.1:8001:8001"
@@ -79,18 +87,21 @@ services:
       - DEV=1
       - DEBUG=1
       - DJANGO_DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
-      - DJANGO_DATABASE_HOST=db
+      - DJANGO_DATABASE_HOST=pgsql
       - DJANGO_DATABASE_NAME=app_db
       - DJANGO_DATABASE_USER=user
       - DJANGO_DATABASE_PASSWORD=password
-      - DJANGO_FLUENTD_HOST=fluentd
+#      - DJANGO_FLUENTD_HOST=fluentd
+      - DJANGO_LOGSTASH_HOST=logstash
+      - DJANGO_LOGSTASH_PORT=5000
     volumes_from:
       - code
       - data
     links:
-      - db
+      - pgsql
       - redis
-      - fluentd
+      - elasticsearch
+      - logstash
   nginx:
     depends_on:
       - data

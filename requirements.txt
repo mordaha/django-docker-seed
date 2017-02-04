@@ -5,4 +5,5 @@ gunicorn
 hiredis
 django-redis-cache
 django-redis-sessions
-fluent-logger
+# fluent-logger
+python-logstash

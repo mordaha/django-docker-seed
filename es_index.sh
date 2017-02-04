@@ -5,10 +5,10 @@ curl -XPUT localhost:8020/_template/logstash_1 -d '
                              "mappings": {
                                "_default_": {
                                  "_all": { "enabled": false },
-                                 "_source": { "compress": true },
+                                 "_source": { },
                                  "properties" : {
-                                   "event_data": { "type": "object", "store": "no" },
-                                   "@fields": { "type": "object", "dynamic": true, "path": "full" },
+                                   "event_data": { "type": "object" },
+                                   "@fields": { "type": "object", "dynamic": true },
                                    "@message": { "type": "string", "index": "analyzed" },
                                    "@source": { "type": "string", "index": "not_analyzed" },
                                    "@source_host": { "type": "string", "index": "not_analyzed" },
@@ -22,9 +22,8 @@ curl -XPUT localhost:8020/_template/logstash_1 -d '
                                }
                              },
                              "settings": {
-                               "index.cache.field.type" : "soft",
+                               "index.fielddata.cache" : "node",
                                "index.refresh_interval": "5s",
-                               "index.store.compress.stored": true,
                                "index.number_of_shards": "3",
                                "index.query.default_field": "querystring",
                                "index.routing.allocation.total_shards_per_node": "2"
