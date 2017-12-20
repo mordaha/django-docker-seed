@@ -6,7 +6,7 @@ from .views import (
     test_view,
 )
 
-
+app_name='zzzzz'
 urlpatterns = [
     url(
         r'^$',

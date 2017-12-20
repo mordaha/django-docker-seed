@@ -1,23 +1,22 @@
 #!/bin/sh
 
-curl -XPUT localhost:8020/_template/logstash_1 -d '
+curl -XPUT localhost:8020/_template/logstash_1 -H 'Content-Type: application/json' -d '
                            {
                              "mappings": {
                                "_default_": {
-                                 "_all": { "enabled": false },
                                  "_source": { },
                                  "properties" : {
                                    "event_data": { "type": "object" },
                                    "@fields": { "type": "object", "dynamic": true },
-                                   "@message": { "type": "string", "index": "analyzed" },
-                                   "@source": { "type": "string", "index": "not_analyzed" },
-                                   "@source_host": { "type": "string", "index": "not_analyzed" },
-                                   "@source_path": { "type": "string", "index": "not_analyzed" },
-                                   "@level": { "type": "string", "index": "not_analyzed" },
-                                   "@sys_name": { "type": "string", "index": "not_analyzed" },
-                                   "@tags": { "type": "string", "index": "not_analyzed" },
-                                   "@timestamp": { "type": "date", "index": "not_analyzed" },
-                                   "@type": { "type": "string", "index": "not_analyzed" }
+                                   "@message": { "type": "text", "index": true },
+                                   "@source": { "type": "text", "index": true },
+                                   "@source_host": { "type": "text", "index": true },
+                                   "@source_path": { "type": "text", "index": true },
+                                   "@level": { "type": "text", "index": true },
+                                   "@sys_name": { "type": "text", "index": true },
+                                   "@tags": { "type": "text", "index": true },
+                                   "@timestamp": { "type": "date", "index": true },
+                                   "@type": { "type": "text", "index": true }
                                  }
                                }
                              },
