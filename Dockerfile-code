@@ -1,7 +1,0 @@
-FROM cogniteev/echo
-
-# Prepare project
-#
-COPY src /code
-
-VOLUME ["/code"]
