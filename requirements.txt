@@ -1,9 +1,30 @@
+# beautifulsoup4
 django
-django-extensions
-psycopg2
-gunicorn
-hiredis
+django-appconf
+# django-compressor
+django-environ
+# django-extensions
+django-import-export
 django-redis-cache
 django-redis-sessions
-# fluent-logger
+# django-reversion
+django-sendfile
+django-simple-captcha
+# django-tinymce
+# djangorestframework
+# djangorestframework-jwt
+# easy-thumbnails
+gevent
+gunicorn
+hiredis
+# Pillow
+psycopg2
+# PyJWT
 python-logstash
+pytz
+PyYAML
+# requests
+# six
+# teamcity-messages
+# watchdog
+# xlrd

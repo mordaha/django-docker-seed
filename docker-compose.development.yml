@@ -1,0 +1,54 @@
+---
+version: "2"
+services:
+  pgsql:
+    image: postgres:9
+    depends_on:
+      - data
+    environment:
+      - POSTGRES_DB=zzzzz
+      - POSTGRES_USER=zzzzz
+      - POSTGRES_PASSWORD=12345
+    ports:
+      - "127.0.0.1:8032:5432"
+    volumes_from:
+      - data
+
+  redis:
+    image: redis
+
+  elasticsearch:
+    ports:
+      - "127.0.0.1:8020:9200"
+      - "127.0.0.1:8030:9300"
+
+  logstash:
+    ports:
+      - "127.0.0.1:8050:5000"
+      - "127.0.0.1:8012:12201/udp"
+
+  kibana:
+    ports:
+      - "127.0.0.1:8056:5601"
+
+  django:
+    build:
+      context: .
+      dockerfile: ./deploy/django/Dockerfile-dev
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8022:22"
+    environment:
+      - DJANGO_DEV=1
+      - DJANGO_DEBUG=1
+      - DJANGO_SETTINGS_MODULE=project.settings
+      - DJANGO_DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
+      - DJANGO_DATABASE_HOST=pgsql
+      - DJANGO_DATABASE_NAME=zzzzz
+      - DJANGO_DATABASE_USER=zzzzz
+      - DJANGO_DATABASE_PASSWORD=12345
+      - DJANGO_LOGSTASH_HOST=logstash
+      - DJANGO_LOGSTASH_PORT=5000
+    volumes:
+      - ./src:/code

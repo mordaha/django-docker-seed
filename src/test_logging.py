@@ -8,6 +8,7 @@ if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
     django.setup()
     import logging
-    l = logging.getLogger('app.logger')
-    l.info('test log entry %s' % datetime.datetime.now())
-    l.info({'jsonentry': 'test json %s' % datetime.datetime.now()})
+
+    logger = logging.getLogger('app.logger')
+    logger.info('test log entry %s' % datetime.datetime.now())
+    logger.info({'jsonentry': 'test json %s' % datetime.datetime.now()})

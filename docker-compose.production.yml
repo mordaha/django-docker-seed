@@ -1,0 +1,32 @@
+---
+version: "2"
+services:
+  redis:
+    image: redis
+
+  elasticsearch:
+    ports:
+      - "127.0.0.1:8020:9200"
+      - "127.0.0.1:8030:9300"
+
+  logstash:
+    ports:
+      - "127.0.0.1:8050:5000"
+      - "127.0.0.1:8012:12201/udp"
+
+  kibana:
+    ports:
+      - "127.0.0.1:8056:5601"
+
+  django:
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=project.settings
+      - DJANGO_DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
+      - DJANGO_DATABASE_HOST=${DJANGO_DATABASE_HOST}
+      - DJANGO_DATABASE_NAME=${DJANGO_DATABASE_NAME}
+      - DJANGO_DATABASE_USER=${DJANGO_DATABASE_USER}
+      - DJANGO_DATABASE_PASSWORD=${DJANGO_DATABASE_PASSWORD}
+      - DJANGO_LOGSTASH_HOST=logstash
+      - DJANGO_LOGSTASH_PORT=5000

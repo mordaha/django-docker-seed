@@ -1,0 +1,16 @@
+---
+version: "2"
+#services:
+#  data:
+#    image: your.docker.hub:5000/zzzzz-data
+#  elasticsearch:
+#    image: your.docker.hub:5000/zzzzz-elk
+#  logstash:
+#    image: your.docker.hub:5000/zzzzz-logstash
+#  kibana:
+#    image: your.docker.hub:5000/zzzzz-kibana
+#  django:
+#    image: your.docker.hub:5000/zzzzz-django
+#  nginx:
+#    image: your.docker.hub:5000/zzzzz-nginx
+

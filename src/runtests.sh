@@ -2,6 +2,8 @@
 
 export APP_ENV=test
 
+FLAKE8="flake8 --max-line-length=120"
+
 # run tests
 coverage run --source="apps" /usr/local/bin/django-admin test -v 2 $@
 
@@ -9,7 +11,7 @@ coverage run --source="apps" /usr/local/bin/django-admin test -v 2 $@
 if test "$?" = "0"; then
     if test "${1}" = ""; then
         echo "\n\nflake8 all files:"
-        flake8 .
+        ${FLAKE8} .
         RESULT=$?
         if test "$RESULT" = "0"; then
             echo "\nOK\n\n"
@@ -19,13 +21,9 @@ if test "$?" = "0"; then
     else
         # flake only diffed files
         echo "\n\nflake diff:"
-        git diff --ignore-space-at-eol -- "*.py" | grep "[+][+][+]" | cut -c11- | xargs flake8
+        git diff --ignore-space-at-eol -- "*.py" | grep "[+][+][+]" | cut -c11- | xargs ${FLAKE8}
         RESULT1=$?
-        # echo "cached:"
-        # git diff --cached --ignore-space-at-eol -- "*.py" | grep "[+][+][+]" | cut -c11- | xargs flake8
-        # RESULT2=$?
-        
-        # if test "$RESULT1" = "0" && test "$RESULT2" = "0"; then
+
         if test "$RESULT1" = "0"; then
             RESULT=0
             echo "\nOK\n\n"
@@ -37,10 +35,6 @@ if test "$?" = "0"; then
 fi
 
 # coverage report
-if test -n "$TEAMCITY_TESTS"; then
-    coverage html
-else
-    if test "${RESULT}" = "0"; then
-        coverage report
-    fi
+if test "${RESULT}" = "0"; then
+    coverage report
 fi

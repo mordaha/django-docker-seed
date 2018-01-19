@@ -1,13 +1,17 @@
-# -*- coding: utf-8 -*-
+#!python
+# coding: utf8
+
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'ZZZSECRET'
+SITE_ID = 1
 
-DEBUG = True
+SECRET_KEY = '123123'
 
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DJANGO_DEBUG', False)
+
+ALLOWED_HOSTS = ['*', ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -16,20 +20,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.flatpages',
+
+    #    "compressor",
+    #    'easy_thumbnails',
+    #    'captcha',
+    #    'import_export',
 
     # Local apps
     'apps.zzzzz'
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -37,7 +48,9 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            '/code/templates/',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -68,35 +81,28 @@ CACHES = {
         'LOCATION': 'redis:6379',
         'OPTIONS': {
             'DB': 1,
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'timeout': 20,
+            },
+            'MAX_CONNECTIONS': 1000,
+            'PICKLE_VERSION': -1,
+
         }
     }
 }
 
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'redis'
-SESSION_REDIS_PORT = 6379
-SESSION_REDIS_DB = 1
-SESSION_REDIS_PREFIX = 'zzzzz'
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+        }
+    }
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.'
-                'UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.'
-                'MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.'
-                'CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.'
-                'NumericPasswordValidator',
-    },
-]
+if not DEBUG:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 LANGUAGE_CODE = 'ru-ru'
 
@@ -110,6 +116,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', '/static')
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.environ.get('DJANGO_MEDIA_ROOT', '/media')
 
 LOGGING = {
@@ -118,29 +126,12 @@ LOGGING = {
     'disable_existing_loggers': False,
 
     'formatters': {
-        # 'fluentd': {
-        #     '()': 'fluent.handler.FluentRecordFormatter',
-        #     'format': {
-        #         'sys_name': '%(name)s',
-        #         'level': '%(levelname)s',
-        #         'source_host': '%(hostname)s',
-        #         'source': '%(module)s',
-        #     }
-        # },
         'console': {
             'format': '[%(module)s].%(levelname)s %(message)s'
         }
     },
 
     'handlers': {
-        # 'fluentd': {
-        #     'level': 'INFO',
-        #     'class': 'fluent.handler.FluentHandler',
-        #     'formatter': 'fluentd',
-        #     'tag': 'django.log',
-        #     'host': os.environ.get('DJANGO_FLUENTD_HOST'),
-        #     'port': 24224,
-        # },
         'logstash': {
             'level': 'INFO',
             'class': 'logstash.TCPLogstashHandler',
@@ -164,15 +155,43 @@ LOGGING = {
             'propagate': True,
         },
         'django': {
-            'handlers': ['logstash', 'console'],
+            'handlers': ['console'],
             'level': 'INFO',
         },
         'django.request': {
-            'handlers': ['logstash', 'console'],
-            'level': 'INFO',
+            'handlers': ['console'],
+            'level': 'DEBUG',
         }
     },
 }
+
+EMAIL_SUBJECT_PREFIX = '[SITE] '
+
+INTERNAL_IPS = ('127.0.0.1',)
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
+
+UPLOAD_FILES_DIR = 'upload/files/'
+
+CAPTCHA_FONT_SIZE = 28
+CAPTCHA_LENGTH = 4
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+
+FILE_UPLOAD_PERMISSIONS = 0o644
+
+THUMBNAIL_ALIASES = {
+    '': {
+        'im300': {'size': (300, 300), 'crop': True},
+    },
+}
+
+SECURE_LINK_EXPIRES = 600
+
+SENDFILE_BACKEND = 'sendfile.backends.nginx'
+SENDFILE_ROOT = os.path.join(MEDIA_ROOT, 'upload/files')
+SENDFILE_URL = '/files'
 
 if os.environ.get('APP_ENV') == 'test':
     from .test_settings import *  # NOQA

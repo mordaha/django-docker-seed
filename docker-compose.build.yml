@@ -1,0 +1,27 @@
+---
+version: "2"
+services:
+  data:
+    build:
+      context: .
+      dockerfile: ./deploy/data/Dockerfile
+  elasticsearch:
+    build:
+      context: .
+      dockerfile: ./deploy/elasticsearch/Dockerfile
+  logstash:
+    build:
+      context: .
+      dockerfile: ./deploy/logstash/Dockerfile
+  kibana:
+    build:
+      context: .
+      dockerfile: ./deploy/kibana/Dockerfile
+  django:
+    build:
+      context: .
+      dockerfile: ./deploy/django/Dockerfile
+  nginx:
+    build:
+      context: .
+      dockerfile: ./deploy/nginx/Dockerfile
