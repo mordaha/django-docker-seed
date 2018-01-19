@@ -1,10 +1,8 @@
 ## DJANGO SITE DEV/PRODUCTION SETUP IN DOCKER CONTAINERS WITH NGINX LOGS IN ELK-STACK
----
 
 This is my docker-composed setup for develop/deploy django-based sites
 
 ## It uses:
----------
 
 - python 3.6.x
 - django 2.x
@@ -16,7 +14,6 @@ This is my docker-composed setup for develop/deploy django-based sites
 - development django container uses sshd for PyCharm's remote project interpretier
 
 ## Development
-------------
 
 1. Run `$ ./dc.sh`
 2. Wait until all containers start, then run `./es_index.sh_`
@@ -27,7 +24,6 @@ This is my docker-composed setup for develop/deploy django-based sites
 7. If you want - point your postgresql app to 127.0.0.1:8032
 
 ## Production (this all must be ansibled)
-------------
 
 ### Setup
 
@@ -56,7 +52,7 @@ You must run your own docker hub for this scenario.
 
 
 ## License
------------
+
 MIT
 
 ## TODO
