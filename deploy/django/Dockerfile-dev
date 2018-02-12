@@ -36,7 +36,7 @@ RUN mkdir -p /var/run/sshd
 # Prepare key-based login to ssd (by copying local ~/.ssh/id_rsa.pub in ./dc.sh script)
 RUN mkdir -p /root/.ssh
 RUN chmod 700 /root/.ssh
-COPY ./deploy/id_rsa.pub /root/.ssh/authorized_keys
+COPY ./deploy/django/id_rsa.pub /root/.ssh/authorized_keys
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
 # Static and media dir to expose out container onto nginx-service
