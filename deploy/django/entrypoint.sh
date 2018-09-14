@@ -20,7 +20,7 @@ do
   sleep 5
 done
 
-if [ "DJANGO_DTATABASE_HOST" = "pgsql" ]; then
+if [ "DJANGO_DATABASE_HOST" = "pgsql" ]; then
     sleep 5 # wait for dockerized postgress will warm up
 fi
 
